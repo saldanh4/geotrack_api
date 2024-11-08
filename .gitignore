@@ -1,0 +1,27 @@
+# Diretório de configurações do VSCode
+.vscode/
+
+# Arquivos de configuração do ambiente
+.env
+
+# Arquivos de log
+*.log
+log.json
+
+# Dependências geradas pelo Go
+bin/
+pkg/
+
+# Módulos do Go
+go.sum
+
+# Arquivos de build do Docker
+docker-compose.yaml
+dockerfile
+
+# Ignorar arquivos temporários do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos de backup do editor
+*~
