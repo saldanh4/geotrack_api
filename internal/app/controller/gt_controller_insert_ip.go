@@ -10,8 +10,8 @@ import (
 )
 
 func (ipController *GeotrackController) CreateIP(c *gin.Context) {
-
-	givenIp, err := CheckIpEntryData(c)
+	inputControl := "ip"
+	givenIp, err := CheckEntryData(inputControl, c)
 	if err != nil {
 		status := u.ErrorHandler(err)
 		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})

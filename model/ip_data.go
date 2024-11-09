@@ -7,7 +7,7 @@ import (
 )
 
 type GeoLocationData struct {
-	//Id          int     `json:"id"`
+	Id               int     `json:"id"`
 	As               string  `json:"as"`
 	City             string  `json:"city"`
 	Country          string  `json:"country"`
@@ -28,7 +28,8 @@ type GeoLocationData struct {
 }
 
 type GivenIP struct {
-	Ip string `json:"ip" binding:"required"`
+	Ip      string `json:"ip" binding:"required"`
+	Country string `json:"country" binding:"required"`
 }
 
 type GivenCountry struct {
