@@ -22,7 +22,7 @@ func (ipController *GeotrackController) CreateIP(c *gin.Context) {
 	if err != nil {
 		status := u.ErrorHandler(err)
 		l.Logger.Warn("%v", zap.Error(err))
-		c.AbortWithStatusJSON(status, gin.H{"message": err.Error()})
+		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})
 		return
 	}
 

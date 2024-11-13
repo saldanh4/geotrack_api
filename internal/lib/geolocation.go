@@ -14,7 +14,7 @@ func GetGeoData(ip string) (*goip.Location, *e.CustomError) {
 	result, err := client.GetLocationForIp(ip)
 	if err != nil {
 		l.Logger.Error(err.Error())
-		return &goip.Location{}, e.CustomErr(e.ErrInternalServer, "não foram encontrados dados de geolocalização para o IP informado na consulta da API externa")
+		return &goip.Location{}, e.CustomErr(e.ErrInternalServer, "não foram encontrados dados de geolocalização para o IP informado")
 	}
 
 	return result, nil

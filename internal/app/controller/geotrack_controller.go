@@ -20,46 +20,56 @@ func NewGeotrackController(usecase usecase.GeotrackUsecase) GeotrackController {
 	}
 }
 
-func CheckEntryData(input string, c *gin.Context) (*m.GivenIP, *e.CustomError) {
-	var givenIP m.GivenIP
+var givenIp m.GivenIP
+var givenCountry m.GivenCountry
+var givenData m.GivenData
 
+func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
 	switch c.Request.Method {
 	case http.MethodGet:
-		switch input {
-		case "ip":
-			givenIP.Ip = c.Query("ip")
-			if givenIP.Ip == "" {
-				return nil, e.CustomErr(e.ErrInvalidInput, "campo 'ip' é obrigatório")
-			}
-		case "country":
-			givenIP.Country = c.Query("country")
-			if givenIP.Country == "" {
-				return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
-			}
+		result, err := CheckInputData(input, c)
+		if err != nil {
+			return nil, err
 		}
+		givenData = *result
 		if c.Request.ContentLength > 0 {
-			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações GET não devem ter dados enviados via body")
+			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodGet+" não devem ter dados enviados via body")
 		}
 	case http.MethodPost:
-		if err := c.ShouldBindJSON(&givenIP); err != nil {
-			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'ip' é obrigatório e deve estar no formato correto")
+		result, err := CheckInputData(input, c)
+		if err != nil {
+			return nil, err
+		}
+		givenData = *result
+		if c.Request.ContentLength == 0 {
+			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodPost+" não devem ter dados enviados via url")
+		}
+
+	case http.MethodDelete:
+		result, err := CheckInputData(input, c)
+		if err != nil {
+			return nil, err
+		}
+		givenData = *result
+		if c.Request.ContentLength > 0 {
+			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodDelete+" não devem ter dados enviados via body")
 		}
 	default:
 		return nil, e.CustomErr(e.ErrInvalidInput, "método não suportado")
 	}
 
 	switch {
-	case givenIP.Ip != "":
-		if err := ValidateIp(givenIP.Ip); err != nil {
+	case givenData.Ip != "":
+		if err := ValidateIp(givenIp.Ip); err != nil {
 			return nil, err
 		}
-	case givenIP.Country != "":
-		if err := ValidateCountry(givenIP.Country); err != nil {
+	case givenData.Country != "":
+		if err := ValidateCountry(givenCountry.Country); err != nil {
 			return nil, err
 		}
 	}
 
-	return &givenIP, nil
+	return &givenData, nil
 }
 
 func ValidateIp(ip string) *e.CustomError {
@@ -76,4 +86,28 @@ func ValidateCountry(country string) *e.CustomError {
 		return e.CustomErr(e.ErrInvalidInput, "nome ou código de país invalido")
 	}
 	return nil
+}
+
+func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
+	switch input {
+	case "ip":
+		if err := c.ShouldBindJSON(&givenIp); err != nil {
+			givenIp.Ip = c.Query("ip")
+		}
+		givenData.Ip = givenIp.Ip
+		if givenData.Ip == "" {
+			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'ip' é obrigatório")
+		}
+		//givenData.Ip = givenIp.Ip
+	case "country":
+		if err := c.ShouldBindJSON(&givenCountry); err != nil {
+			givenCountry.Country = c.Query("country")
+		}
+		givenData.Country = givenCountry.Country
+		if givenData.Country == "" {
+			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
+		}
+		//givenData.Country = givenCountry.Country
+	}
+	return &givenData, nil
 }

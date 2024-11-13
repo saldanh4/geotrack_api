@@ -17,6 +17,8 @@ func (ipController *GeotrackController) GetEntriesByCountry(c *gin.Context) {
 
 	result, err := ipController.GeotrackUsecase.GetEntriesByCountryUsecase(givenCountry.Country)
 	if err != nil {
+		status := u.ErrorHandler(err)
+		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})
 		return
 	}
 

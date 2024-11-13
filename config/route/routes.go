@@ -24,7 +24,7 @@ func Endpoints(server *gin.Engine, controller *controller.GeotrackController) {
 		v1.GET("/search_by_ip", controller.GetEntriesByIp)
 		v1.GET("/search_by_country", controller.GetEntriesByCountry)
 		v1.GET("/nearest_se_square")
-		v1.DELETE("delete_entries_by_ip")
+		v1.DELETE("delete_entries_by_ip", controller.DeleteEntriesByIp)
 	}
 
 	l.Logger.Info("Server is running on port: 8080")

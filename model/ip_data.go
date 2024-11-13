@@ -28,12 +28,15 @@ type GeoLocationData struct {
 }
 
 type GivenIP struct {
-	Ip      string `json:"ip" binding:"required"`
+	Ip string `json:"ip" binding:"required"`
+}
+type GivenCountry struct {
 	Country string `json:"country" binding:"required"`
 }
 
-type GivenCountry struct {
-	CountryCode string `json:"countryCode" binding:"required"`
+type GivenData struct {
+	Ip      string
+	Country string
 }
 
 func SetIpData(result *goip.Location, h time.Time, distance float64) GeoLocationData {
