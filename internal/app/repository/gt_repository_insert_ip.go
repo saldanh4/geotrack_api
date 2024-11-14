@@ -15,6 +15,7 @@ func (ipRepo *GeotrackRepository) CreateIP(ipData *model.GeoLocationData) *e.Cus
 		l.Logger.Error("erro ao preparar requisição SQL", zap.Error(err))
 		return e.CustomErr(e.ErrInternalServer, "erro ao preparar requisição SQL")
 	}
+	defer query.Close()
 
 	err = query.QueryRow(
 		ipData.As,

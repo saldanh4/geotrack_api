@@ -12,6 +12,7 @@ const (
 	SEARCH_BY_COUNTRY_QUERY      = "SELECT * FROM ip_data_endpoints  WHERE LOWER(country) = $1 GROUP BY id ORDER BY isp"
 	SEARCH_BY_COUNTRY_CODE_QUERY = "SELECT * FROM ip_data_endpoints  WHERE LOWER(countrycode) = $1 GROUP BY id ORDER BY isp"
 	DELETE_ENTRIES_BY_IP         = "DELETE FROM ip_data_endpoints WHERE query = $1"
+	NEAREST_SE_SQUARE_QUERY      = "SELECT query, as_number, city, country, distance_se_square FROM ip_data_endpoints ORDER BY distance_se_square asc, id asc LIMIT 1"
 )
 
 func NewGeotrackRepository(connection *sql.DB) GeotrackRepository {

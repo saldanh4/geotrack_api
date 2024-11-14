@@ -19,7 +19,7 @@ type Config struct {
 
 func LoadConfig() Config {
 
-	rootPath, err := filepath.Abs("..")
+	rootPath, err := filepath.Abs("D:/Estudos Go/API/geotrack_api")
 	if err != nil {
 		l.Logger.Fatal("Error determining root path: %v", zap.Error(err))
 	}

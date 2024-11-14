@@ -23,7 +23,7 @@ func Endpoints(server *gin.Engine, controller *controller.GeotrackController) {
 		v1.POST("/add_ip", controller.CreateIP)
 		v1.GET("/search_by_ip", controller.GetEntriesByIp)
 		v1.GET("/search_by_country", controller.GetEntriesByCountry)
-		v1.GET("/nearest_se_square")
+		v1.GET("/nearest_se_square", controller.GetNearestIpToSeSquare)
 		v1.DELETE("delete_entries_by_ip", controller.DeleteEntriesByIp)
 	}
 

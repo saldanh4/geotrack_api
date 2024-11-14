@@ -41,7 +41,7 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, err
 		}
 		givenData = *result
-		if c.Request.ContentLength == 0 {
+		if c.Request.URL.Query() != nil {
 			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodPost+" não devem ter dados enviados via url")
 		}
 
@@ -60,7 +60,7 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 
 	switch {
 	case givenData.Ip != "":
-		if err := ValidateIp(givenIp.Ip); err != nil {
+		if err := ValidateIp(givenData.Ip); err != nil {
 			return nil, err
 		}
 	case givenData.Country != "":
@@ -82,7 +82,9 @@ func ValidateIp(ip string) *e.CustomError {
 }
 
 func ValidateCountry(country string) *e.CustomError {
-	if len(country) < 2 {
+	regex := `^[a-zA-Z\s]+$`
+	validCountry, _ := regexp.MatchString(regex, country)
+	if len(country) < 2 || !validCountry {
 		return e.CustomErr(e.ErrInvalidInput, "nome ou código de país invalido")
 	}
 	return nil
@@ -107,7 +109,6 @@ func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 		if givenData.Country == "" {
 			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
 		}
-		//givenData.Country = givenCountry.Country
 	}
 	return &givenData, nil
 }
