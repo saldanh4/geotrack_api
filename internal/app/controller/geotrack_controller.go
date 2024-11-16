@@ -41,7 +41,7 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, err
 		}
 		givenData = *result
-		if c.Request.URL.Query() != nil {
+		if len(c.Request.URL.Query()) > 0 {
 			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodPost+" não devem ter dados enviados via url")
 		}
 
