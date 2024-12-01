@@ -7,6 +7,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/jpiontek/go-ip-api v0.0.0-20160911175601-3b41e3a8c3b6
 	github.com/lib/pq v1.10.9
+	github.com/umahmood/haversine v0.0.0-20151105152445-808ab04add26
 	go.uber.org/zap v1.27.0
 )
 
@@ -30,7 +31,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/umahmood/haversine v0.0.0-20151105152445-808ab04add26 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect

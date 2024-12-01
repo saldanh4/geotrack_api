@@ -4,6 +4,7 @@ import (
 	e "geotrack_api/config/customerrors"
 	"geotrack_api/internal/app/usecase"
 	m "geotrack_api/model"
+	"net"
 	"net/http"
 	"regexp"
 
@@ -78,6 +79,12 @@ func ValidateIp(ip string) *e.CustomError {
 	if !match {
 		return e.CustomErr(e.ErrInvalidInput, "formato de ip inválido")
 	}
+	_, _, err := net.ParseCIDR(ip + "/32")
+	if err != nil {
+		return e.CustomErr(e.ErrInvalidInput, "formato de ip inválido")
+	} // else if checkIp.To4() == nil {
+	// 	return e.CustomErr(e.ErrInvalidInput, "formato de ip inválido")
+	// }
 	return nil
 }
 
