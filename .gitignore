@@ -25,3 +25,6 @@ Thumbs.db
 
 # Ignorar arquivos de backup do editor
 *~
+
+# Ignorar arquvis de cobertura de testes
+coverage.out

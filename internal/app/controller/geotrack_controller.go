@@ -4,6 +4,7 @@ import (
 	e "geotrack_api/config/customerrors"
 	"geotrack_api/internal/app/usecase"
 	m "geotrack_api/model"
+	"log"
 	"net"
 	"net/http"
 	"regexp"
@@ -26,10 +27,16 @@ var givenCountry m.GivenCountry
 var givenData m.GivenData
 
 func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
+	log.Printf("Método: %s, Input: %s, Query: %s, Body: %s", c.Request.Method, input, c.Request.URL.Query(), c.Request.Body)
+	givenIp.Ip = ""
+	givenCountry.Country = ""
+	givenData.Ip = ""
+	givenData.Country = ""
 	switch c.Request.Method {
 	case http.MethodGet:
 		result, err := CheckInputData(input, c)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		givenData = *result
@@ -45,7 +52,6 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 		if len(c.Request.URL.Query()) > 0 {
 			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodPost+" não devem ter dados enviados via url")
 		}
-
 	case http.MethodDelete:
 		result, err := CheckInputData(input, c)
 		if err != nil {
@@ -56,7 +62,7 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodDelete+" não devem ter dados enviados via body")
 		}
 	default:
-		return nil, e.CustomErr(e.ErrInvalidInput, "método não suportado")
+		return nil, e.CustomErr(e.ErrInvalidInput, "") //método não suportado")
 	}
 
 	switch {
@@ -65,11 +71,35 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, err
 		}
 	case givenData.Country != "":
-		if err := ValidateCountry(givenCountry.Country); err != nil {
+		if err := ValidateCountry(givenData.Country); err != nil {
 			return nil, err
 		}
 	}
+	return &givenData, nil
+}
 
+func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
+
+	switch input {
+	case "ip":
+		if err := c.ShouldBindJSON(&givenIp); err != nil {
+			givenIp.Ip = c.Query("ip")
+		}
+		givenData.Ip = givenIp.Ip
+		if givenData.Ip == "" {
+			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'ip' é obrigatório")
+		}
+		//givenData.Country = ""
+	case "country":
+		if err := c.ShouldBindJSON(&givenCountry); err != nil {
+			givenCountry.Country = c.Query("country")
+		}
+		givenData.Country = givenCountry.Country
+		if givenData.Country == "" {
+			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
+		}
+		//givenData.Ip = ""
+	}
 	return &givenData, nil
 }
 
@@ -82,9 +112,7 @@ func ValidateIp(ip string) *e.CustomError {
 	_, _, err := net.ParseCIDR(ip + "/32")
 	if err != nil {
 		return e.CustomErr(e.ErrInvalidInput, "formato de ip inválido")
-	} // else if checkIp.To4() == nil {
-	// 	return e.CustomErr(e.ErrInvalidInput, "formato de ip inválido")
-	// }
+	}
 	return nil
 }
 
@@ -95,27 +123,4 @@ func ValidateCountry(country string) *e.CustomError {
 		return e.CustomErr(e.ErrInvalidInput, "nome ou código de país invalido")
 	}
 	return nil
-}
-
-func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
-	switch input {
-	case "ip":
-		if err := c.ShouldBindJSON(&givenIp); err != nil {
-			givenIp.Ip = c.Query("ip")
-		}
-		givenData.Ip = givenIp.Ip
-		if givenData.Ip == "" {
-			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'ip' é obrigatório")
-		}
-		//givenData.Ip = givenIp.Ip
-	case "country":
-		if err := c.ShouldBindJSON(&givenCountry); err != nil {
-			givenCountry.Country = c.Query("country")
-		}
-		givenData.Country = givenCountry.Country
-		if givenData.Country == "" {
-			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
-		}
-	}
-	return &givenData, nil
 }
