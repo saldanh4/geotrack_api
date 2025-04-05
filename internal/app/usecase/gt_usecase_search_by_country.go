@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (ipUsecase *GeotrackUsecase) GetEntriesByCountryUsecase(givenCountry string) (*[]m.GeoLocationData, *e.CustomError) {
+func (ipUsecase *GeotrackUsecaseImpl) GetEntriesByCountryUsecase(givenCountry string) (*[]m.GeoLocationData, *e.CustomError) {
 	country := strings.ToLower(givenCountry)
 
 	countryList, err := ipUsecase.repository.GetEntriesByCountryRepository(country)

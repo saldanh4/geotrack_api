@@ -17,9 +17,10 @@ type IpData struct {
 	Count   int8
 }
 
-func (ipController *GeotrackController) GetEntriesByIp(c *gin.Context) {
+func (ipController *GeotrackControllerImpl) GetEntriesByIp(c *gin.Context) {
+	l.LoggerInit()
 	inputControl := "ip"
-	givenIp, err := CheckEntryData(inputControl, c)
+	givenIp, err := ipController.Service.CheckEntryData(inputControl, c)
 	if err != nil {
 		status := u.ErrorHandler(err)
 		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})

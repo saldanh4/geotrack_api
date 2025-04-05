@@ -8,7 +8,7 @@ import (
 	e "geotrack_api/config/customerrors"
 )
 
-func (ipUsecase *GeotrackUsecase) CreateIP(givenIp *model.GivenData) (*model.GeoLocationData, *e.CustomError) {
+func (ipUsecase *GeotrackUsecaseImpl) CreateIP(givenIp *model.GivenData) (*model.GeoLocationData, *e.CustomError) {
 	result, err := lib.GetGeoData(givenIp.Ip)
 	if err != nil {
 		return &model.GeoLocationData{}, err

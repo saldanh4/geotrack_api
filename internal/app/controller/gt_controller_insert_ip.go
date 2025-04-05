@@ -9,9 +9,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ipController *GeotrackController) CreateIP(c *gin.Context) {
+func (ipController *GeotrackControllerImpl) CreateIP(c *gin.Context) {
 	inputControl := "ip"
-	givenIp, err := CheckEntryData(inputControl, c)
+	givenIp, err := ipController.Service.CheckEntryData(inputControl, c)
 	if err != nil {
 		status := u.ErrorHandler(err)
 		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})

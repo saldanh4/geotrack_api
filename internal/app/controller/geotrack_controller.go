@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"geotrack_api/config/customerrors"
 	e "geotrack_api/config/customerrors"
 	"geotrack_api/internal/app/usecase"
+	"geotrack_api/model"
 	m "geotrack_api/model"
 	"log"
 	"net"
@@ -12,13 +14,56 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GeotrackController struct {
-	GeotrackUsecase usecase.GeotrackUsecase
+type GeotrackController interface {
+	CreateIP(c *gin.Context)
+	DeleteEntriesByIp(c *gin.Context)
+	GetNearestIpToSeSquare(c *gin.Context)
+	GetEntriesByCountry(c *gin.Context)
+	GetEntriesByIp(c *gin.Context)
 }
 
-func NewGeotrackController(usecase usecase.GeotrackUsecase) GeotrackController {
-	return GeotrackController{
+type CheckService interface {
+	CheckEntryData(input string, c *gin.Context) (*model.GivenData, *e.CustomError)
+}
+
+type CheckData interface {
+	CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
+	ValidateIp(ip string) *customerrors.CustomError
+	ValidateCountry(country string) *customerrors.CustomError
+}
+
+type GeotrackControllerImpl struct {
+	GeotrackUsecase usecase.GeotrackUsecase
+	Service         CheckService
+	Data            CheckData
+}
+type CheckServiceImpl struct {
+	//GeotrackController GeotrackController
+	CheckData CheckData
+}
+
+type CheckDataImpl struct {
+}
+
+func NewDefaultCheckService() CheckService {
+	return &CheckServiceImpl{
+		CheckData: &CheckDataImpl{},
+	}
+}
+
+func NewDefaultCheckData() CheckData {
+	return &CheckDataImpl{}
+}
+
+func NewGeotrackController(usecase usecase.GeotrackUsecase, service CheckService, data CheckData) GeotrackController {
+	if service == nil {
+		service = NewDefaultCheckService()
+		data = NewDefaultCheckData()
+	}
+	return &GeotrackControllerImpl{
 		GeotrackUsecase: usecase,
+		Service:         service,
+		Data:            data,
 	}
 }
 
@@ -26,7 +71,7 @@ var givenIp m.GivenIP
 var givenCountry m.GivenCountry
 var givenData m.GivenData
 
-func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
+func (control *CheckServiceImpl) CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
 	log.Printf("Método: %s, Input: %s, Query: %s, Body: %s", c.Request.Method, input, c.Request.URL.Query(), c.Request.Body)
 	givenIp.Ip = ""
 	givenCountry.Country = ""
@@ -34,17 +79,17 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 	givenData.Country = ""
 	switch c.Request.Method {
 	case http.MethodGet:
-		result, err := CheckInputData(input, c)
+		if c.Request.ContentLength > 0 {
+			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodGet+" não devem ter dados enviados via body")
+		}
+		result, err := control.CheckData.CheckInputData(input, c)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 		givenData = *result
-		if c.Request.ContentLength > 0 {
-			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodGet+" não devem ter dados enviados via body")
-		}
 	case http.MethodPost:
-		result, err := CheckInputData(input, c)
+		result, err := control.CheckData.CheckInputData(input, c)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +98,7 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, e.CustomErr(e.ErrInvalidInput, "solicitações "+http.MethodPost+" não devem ter dados enviados via url")
 		}
 	case http.MethodDelete:
-		result, err := CheckInputData(input, c)
+		result, err := control.CheckData.CheckInputData(input, c)
 		if err != nil {
 			return nil, err
 		}
@@ -67,18 +112,19 @@ func CheckEntryData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 
 	switch {
 	case givenData.Ip != "":
-		if err := ValidateIp(givenData.Ip); err != nil {
+		if err := control.CheckData.ValidateIp(givenData.Ip); err != nil {
 			return nil, err
 		}
 	case givenData.Country != "":
-		if err := ValidateCountry(givenData.Country); err != nil {
+		if err := control.CheckData.ValidateCountry(givenData.Country); err != nil {
 			return nil, err
 		}
 	}
+
 	return &givenData, nil
 }
 
-func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
+func (dtControl *CheckDataImpl) CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError) {
 
 	switch input {
 	case "ip":
@@ -99,11 +145,13 @@ func CheckInputData(input string, c *gin.Context) (*m.GivenData, *e.CustomError)
 			return nil, e.CustomErr(e.ErrInvalidInput, "campo 'country' é obrigatório")
 		}
 		//givenData.Ip = ""
+	default:
+		return &givenData, e.CustomErr(e.ErrInternalServer, "falha ao checar se a entrada é 'ip' ou 'país'")
 	}
 	return &givenData, nil
 }
 
-func ValidateIp(ip string) *e.CustomError {
+func (dtControl *CheckDataImpl) ValidateIp(ip string) *e.CustomError {
 	padraoIP := `^(\d{1,3}\.){3}\d{1,3}$`
 	match, _ := regexp.MatchString(padraoIP, ip)
 	if !match {
@@ -116,7 +164,7 @@ func ValidateIp(ip string) *e.CustomError {
 	return nil
 }
 
-func ValidateCountry(country string) *e.CustomError {
+func (dtControl *CheckDataImpl) ValidateCountry(country string) *e.CustomError {
 	regex := `^[a-zA-Z\s]+$`
 	validCountry, _ := regexp.MatchString(regex, country)
 	if len(country) < 2 || !validCountry {

@@ -16,7 +16,7 @@ type Result struct {
 	Distance string
 }
 
-func (ipController *GeotrackController) GetNearestIpToSeSquare(c *gin.Context) {
+func (ipController *GeotrackControllerImpl) GetNearestIpToSeSquare(c *gin.Context) {
 	var checkJson map[string]interface{}
 	checkParam := c.Request.URL.RawQuery
 	if err := c.ShouldBindJSON(&checkJson); err != nil {

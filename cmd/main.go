@@ -28,6 +28,6 @@ func main() {
 
 	GtRepository := repository.NewGeotrackRepository(dbConnection)
 	GtUsecase := usecase.NewGeotrackUsecase(GtRepository)
-	GtController := controller.NewGeotrackController(GtUsecase)
-	route.Endpoints(server, &GtController)
+	GtController := controller.NewGeotrackController(GtUsecase, nil, nil) //controller.NewGeotrackController(GtUsecase)
+	route.Endpoints(server, GtController)
 }

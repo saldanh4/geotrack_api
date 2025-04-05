@@ -5,7 +5,7 @@ import (
 	"geotrack_api/model"
 )
 
-func (ipUsecase *GeotrackUsecase) GetEntriesByIpUsecase(givenIp string) (*model.GeoLocationData, *e.CustomError) {
+func (ipUsecase *GeotrackUsecaseImpl) GetEntriesByIpUsecase(givenIp string) (*model.GeoLocationData, *e.CustomError) {
 
 	ipData, err := ipUsecase.repository.GetEntriesByIpRepository(givenIp)
 	if err != nil {

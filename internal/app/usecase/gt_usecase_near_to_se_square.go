@@ -5,7 +5,7 @@ import (
 	m "geotrack_api/model"
 )
 
-func (ipUsecase *GeotrackUsecase) GetNearestIpToSeSquareUsecase() (*m.GeoLocationData, *e.CustomError) {
+func (ipUsecase *GeotrackUsecaseImpl) GetNearestIpToSeSquareUsecase() (*m.GeoLocationData, *e.CustomError) {
 	result, err := ipUsecase.repository.GetNearestIpToSeSquareRepository()
 	if err != nil {
 		return nil, err

@@ -15,8 +15,7 @@ func setTrustedProxies(server *gin.Engine) {
 	}
 }
 
-func Endpoints(server *gin.Engine, controller *controller.GeotrackController) {
-
+func Endpoints(server *gin.Engine, controller controller.GeotrackController) {
 	setTrustedProxies(server)
 	v1 := server.Group("api/v1/ips")
 	{

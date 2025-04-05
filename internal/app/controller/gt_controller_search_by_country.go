@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (ipController *GeotrackController) GetEntriesByCountry(c *gin.Context) {
+func (ipController *GeotrackControllerImpl) GetEntriesByCountry(c *gin.Context) {
 	inputControl := "country"
-	givenCountry, err := CheckEntryData(inputControl, c)
+	givenCountry, err := ipController.Service.CheckEntryData(inputControl, c)
 	if err != nil {
 		status := u.ErrorHandler(err)
 		c.AbortWithStatusJSON(status, gin.H{"message": err.CustomMsg})
